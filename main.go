@@ -1,14 +1,15 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"net/url"
 	"os"
 
-	"github.com/andybons/hipchat"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/jessevdk/go-flags"
+	"github.com/spheromak/hipchat"
 )
 
 type Options struct {
@@ -48,9 +49,10 @@ type DockerHubRequest struct {
 
 var opts Options
 var parser = flags.NewParser(&opts, flags.Default)
-var hcc = hipchat.Client{AuthToken: opts.HipChatKey}
+var hcClient = hipchat.Client{AuthToken: opts.HipChatKey}
 
 func eventHandler(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
 	// vlidate method
 	if r.Method != "POST" {
 		w.WriteHeader(http.StatusMethodNotAllowed)
@@ -66,13 +68,19 @@ func eventHandler(w http.ResponseWriter, r *http.Request) {
 
 	// make sure the auth info matches
 	q := u.Query()
-	spew.Dump(q)
 	if q["token"][0] != opts.AuthStr {
 		w.WriteHeader(http.StatusUnauthorized)
 		fmt.Fprint(w, "Auth info incorrect")
 	}
 
 	// parse the json data in the body
+	decoder := json.NewDecoder(r.Body)
+	var t DockerHubRequest
+	err = decoder.Decode(&t)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprint(w, "error parsing json body: ", err.Error())
+	}
 
 	// setup the hipchat request
 	hcReq := hipchat.MessageRequest{
@@ -80,11 +88,13 @@ func eventHandler(w http.ResponseWriter, r *http.Request) {
 		From:          "Docker Build",
 		Color:         hipchat.ColorPurple,
 		MessageFormat: hipchat.FormatText,
+		Message:       fmt.Sprintf("Build of %s completed", t.Repository.RepoName),
 		Notify:        opts.HipChatNotify,
 	}
 
-	// send the message
-	spew.Dump(hcReq)
+	if err := hcClient.PostMessage(hcReq); err != nil {
+		log.Printf("Expected no error, but got %q", err)
+	}
 	return
 }
 
@@ -95,8 +105,7 @@ func init() {
 }
 
 func main() {
-
+	hcClient = hipchat.Client{AuthToken: opts.HipChatKey}
 	http.HandleFunc("/hhh", eventHandler)
 	http.ListenAndServe(fmt.Sprintf(opts.ListenAddr), nil)
-
 }
