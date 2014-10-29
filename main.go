@@ -33,7 +33,7 @@ type DockerHubRequest struct {
 		Description     string `json:"description"`
 		Trusted         bool   `json:"is_truested"`
 		FullDescription string `json:"full_description"`
-		RepoUrl         string `json:"repo_url"`
+		RepoURL         string `json:"repo_url"`
 		Owner           string `json:"owner"`
 		Official        bool   `json:"is_official"`
 		Private         bool   `json:"is_private"`
@@ -88,7 +88,7 @@ func eventHandler(w http.ResponseWriter, r *http.Request) {
 		From:          "Docker Build",
 		Color:         hipchat.ColorPurple,
 		MessageFormat: hipchat.FormatText,
-		Message:       fmt.Sprintf("Build of %s completed", t.Repository.RepoName),
+		Message:       fmt.Sprintf("Build of %s completed %s", t.Repository.RepoName, t.Repository.RepoURL),
 		Notify:        opts.HipChatNotify,
 	}
 
