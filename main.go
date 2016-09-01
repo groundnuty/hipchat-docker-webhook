@@ -26,6 +26,7 @@ type DockerHubRequest struct {
 		PushedAt int      `json:"pushed_at"`
 		Images   []string `json:"images"`
 		Pusher   string   `json:"pusher"`
+		tag   	 string   `json:"tag"`
 	}
 	Repository struct {
 		Status          string `json:"status"`
@@ -85,9 +86,9 @@ func eventHandler(w http.ResponseWriter, r *http.Request) {
 	hcReq := hipchat.NotificationRequest{
 		RoomId:        opts.HipChatRoom,
 		From:          "Docker Build",
-		Color:         hipchat.ColorPurple,
+		Color:         hipchat.ColorGreen,
 		MessageFormat: hipchat.FormatText,
-		Message:       fmt.Sprintf("Build of %s completed %s", t.Repository.RepoName, t.Repository.RepoURL),
+		Message:       fmt.Sprintf("%s:%s pushed to DockerHub, see %s", t.Repository.RepoName, t.PushData.tag, t.Repository.RepoURL),
 		Notify:        opts.HipChatNotify,
 	}
 
