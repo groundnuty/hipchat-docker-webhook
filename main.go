@@ -26,8 +26,9 @@ type DockerHubRequest struct {
 		PushedAt int      `json:"pushed_at"`
 		Images   []string `json:"images"`
 		Pusher   string   `json:"pusher"`
-		tag   	 string   `json:"tag"`
-	}
+		Tag   	 string   `json:"tag"`
+	} `json:"push_data"`
+	CallbackUrl string `json:"callback_url"`
 	Repository struct {
 		Status          string `json:"status"`
 		Description     string `json:"description"`
@@ -42,9 +43,8 @@ type DockerHubRequest struct {
 		StarCount       int    `json:"star_count"`
 		CommentCount    int    `json:"comment_count"`
 		Created         int    `json:"date_created"`
-		Dockerfile      string `json:"dockerfile"`
 		RepoName        string `json:"repo_name"`
-	}
+	} `json:"repository"`
 }
 
 var opts Options
@@ -88,7 +88,7 @@ func eventHandler(w http.ResponseWriter, r *http.Request) {
 		From:          "Docker Build",
 		Color:         hipchat.ColorGreen,
 		MessageFormat: hipchat.FormatText,
-		Message:       fmt.Sprintf("%s:%s pushed to DockerHub, see %s", t.Repository.RepoName, t.PushData.tag, t.Repository.RepoURL),
+		Message:       fmt.Sprintf("%s:%s pushed to DockerHub, see %s", t.Repository.RepoName, t.PushData.Tag, t.Repository.RepoURL),
 		Notify:        opts.HipChatNotify,
 	}
 
