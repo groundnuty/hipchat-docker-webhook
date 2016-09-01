@@ -7,15 +7,14 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-
 	"github.com/jessevdk/go-flags"
-	"github.com/spheromak/hipchat"
+	"github.com/groundnuty/hipchat"
 )
 
 type Options struct {
 	HipChatKey    string `short:"k" long:"hc-key" env:"HC_KEY" description:"HipChat API key" required:"true"`
 	HipChatRoom   string `short:"r" long:"hc-room" env:"HC_ROOM" description:"HipChat Room to send notices too" required:"true"`
-	HipChatNotify bool   `short:"n" long:"hc-notify" env:"HC_NOTIFY" description:"Whether or not this message should trigger a notification for people in the room" default:"false"`
+	HipChatNotify bool   `short:"n" long:"hc-notify" env:"HC_NOTIFY" description:"Whether or not this message should trigger a notification for people in the room"`
 	ListenAddr    string `short:"b" long:"bind" env:"HHH_BIND" description:"Bind address to listen on" default:"0.0.0.0:6444"`
 	AuthStr       string `short:"a" long:"auth" env:"HHH_AUTH" description:"Auth String Post requests must include when posting" default:"supersecret"`
 }
@@ -83,7 +82,7 @@ func eventHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// setup the hipchat request
-	hcReq := hipchat.MessageRequest{
+	hcReq := hipchat.NotificationRequest{
 		RoomId:        opts.HipChatRoom,
 		From:          "Docker Build",
 		Color:         hipchat.ColorPurple,
@@ -92,7 +91,7 @@ func eventHandler(w http.ResponseWriter, r *http.Request) {
 		Notify:        opts.HipChatNotify,
 	}
 
-	if err := hcClient.PostMessage(hcReq); err != nil {
+	if err := hcClient.PostNotification(hcReq); err != nil {
 		log.Printf("Expected no error, but got %q", err)
 	}
 	return
