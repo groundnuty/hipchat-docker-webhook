@@ -1,0 +1,14 @@
+hipchat-docker-webhook:
+  image: groundnuty/hipchat-docker-webhook
+  environment:
+    - HIPCHAT_NOTIFY="true"
+    - HIPCHAT_ROOM="Onedata Releases"
+    - LISTENING_ADDRESS="0.0.0.0:9443"
+    - HIPCHAT_TOKEN # defined on the VM in the .env file
+    - WEBHOOK_AUTH_PASS # defined on the VM .env file
+  ports:
+    - '9443:9443' # exposed as port 10177 on plgrid 
+  # Docker cloud specific options follow
+  autoredeploy: true
+  tags:
+    - hipchat-docker-webhook

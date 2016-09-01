@@ -1,0 +1,20 @@
+version: "2"
+
+services:
+  hipchat-docker-webhook:
+    image: groundnuty/hipchat-docker-webhook  
+    environment:
+      - HIPCHAT_NOTIFY="true"
+      - HIPCHAT_ROOM="Onedata Releases"
+      - LISTENING_ADDRESS="0.0.0.0:9443"
+      # - HIPCHAT_TOKEN="example token" defined on the VM in the .env
+      # - WEBHOOK_AUTH_PASS="example_password"  # defined on the VM
+  ports:
+    - '9443:9443' # exposed as port 10177 on plgrid 
+  env_file:
+    - ./hipchat-docker-webhook.env # on the host machine
+  
+
+
+
+
